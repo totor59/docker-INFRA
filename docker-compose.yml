@@ -1,14 +1,10 @@
 version: '2'
-volumes:
-  data:
-  db:
-
 
 services:
 #MariaDB Container
   mariadb:
     image: mariadb:10.7
-    container_name: mariadb
+    container_name: mariadb-G3
     hostname: mariadb
     volumes:
       - /var/lib/mysql:/var/lib/mysql
@@ -19,7 +15,7 @@ services:
 #GLPI Container
   glpi:
     image: diouxx/glpi
-    container_name : glpi
+    container_name : glpi-G3
     hostname: glpi
     ports:
       - "8080:80"
@@ -27,9 +23,11 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /var/www/html/glpi/:/var/www/html/glpi
-    environment:
-      - TIMEZONE=Europe/Paris
+    env_file:
+      - /home/vmarechal/conf/.env/glpi.env 
     restart: always
+  
+#PORTAINER Container
   portainer:
     container_name: portainer-G3
     image: 'portainer/portainer-ce:latest'
@@ -38,25 +36,19 @@ services:
         - /var/run/docker.sock:/var/run/docker.sock
         - /home/vmarechal/portainer/:/data
     ports:
-        #- "8000:8000"
-        - "9000:9000"
-        #- "9443:9443"
-  
+        - 8081:9000
+
+#NEXTCLOUD Container  
   nextcloud:
-    container_name: nextcloud
+    container_name: nextcloud-G3
     image: nextcloud
     restart: always
     ports:
-      - 8081:80
+      - 8082:80
     links:
       - mariadb
     volumes:
       - /home/vmarechal/nextcloud:/var/www/html
-#    environment:
-#      - MYSQL_PASSWORD=
-#      - MYSQL_DATABASE=nextcloud
-#      - MYSQL_USER=nextcloud
-#      - MYSQL_HOST=db
     env_file:
-      - /home/vmarechal/conf/.env/mariadb.env
+      - /home/vmarechal/conf/.env/nextcloud.env
 
